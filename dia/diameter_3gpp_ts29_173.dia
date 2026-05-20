@@ -1,0 +1,122 @@
+;;
+;; %CopyrightBegin%
+;;
+;; Copyright (C) 2019 by Harald Welte. All Rights Reserved.
+;;
+;; This resembles 3GPP TS 29.173 version 15.0.0 Release 15
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;     https://www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; %CopyrightEnd%
+;;
+
+;;
+;; Edits:
+;;
+;;
+
+@id     16777291
+@name   diameter_3gpp_ts29_173
+;;@prefix diameter_3gpp
+@vendor 10415 3GPP
+
+@inherits diameter_gen_base_rfc6733
+@inherits diameter_3gpp_base
+@inherits diameter_3gpp_ts29_229
+@inherits diameter_3gpp_ts29_273 3GPP-AAA-Server-Name
+@inherits diameter_3gpp_ts29_329
+@inherits diameter_3gpp_break_circles
+
+@avp_types
+
+	LMSI			2400	OctetString		MV
+	Serving-Node		2401	Grouped			MV
+	MME-Name		2402	DiameterIdentity	MV
+	MSC-Number		2403	OctetString		MV
+	LCS-Capabilities-Sets	2404	Unsigned32		MV
+	Additional-Serving-Node	2406	Grouped			MV
+	PPR-Address		2407	Address			MV
+	MME-Realm		2408	DiameterIdentity	V
+	SGSN-Name		2409	DiameterIdentity	V
+	SGSN-Realm		2410	DiameterIdentity	V
+	RIA-Flags		2411	Unsigned32		V
+
+@messages
+
+	;; 6.2.3 LCS-Routing-Info-Request
+	RIR ::= < Diameter Header: 8388622, REQ, PXY >
+		< Session-Id >
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		{ Destination-Realm }
+		[ Vendor-Specific-Application-Id ]
+		[ Destination-Host ]
+		[ User-Name ]
+		[ MSISDN ]
+		[ GMLC-Number ]
+		*[ Supported-Features ]
+		*[ Proxy-Info ]
+		*[ Route-Record ]
+		*[ AVP ]
+
+	;; 6.2.4 LCS-Routing-Info-Answer
+	RIA ::= < Diameter Header: 8388622, PXY >
+		< Session-Id >
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		[ Vendor-Specific-Application-Id ]
+		[ Result-Code ]
+		[ Experimental-Result ]
+		*[ Supported-Features ]
+		[ User-Name ]
+		[ MSISDN ]
+		[ LMSI ]
+		[ Serving-Node ]
+		*[ Additional-Serving-Node ]
+		[ GMLC-Address ]
+		[ PPR-Address ]
+		[ RIA-Flags ]
+		*[ AVP ]
+		[ Failed-AVP ]
+ 		*[ Proxy-Info ]
+		*[ Route-Record ]
+
+@grouped
+
+;; 6.4.3
+Serving-Node ::= <AVP Header: 2401 10415>
+	[ SGSN-Number ]
+	[ SGSN-Name ]
+	[ SGSN-Realm ]
+	[ MME-Name ]
+	[ MME-Realm ]
+	[ MSC-Number ]
+	[ 3GPP-AAA-Server-Name ]
+	[ LCS-Capabilities-Sets ]
+	[ GMLC-Address ]
+	*[AVP]
+
+;; 6.4.8
+Additional-Serving-Node ::= <AVP Header: 2406 10415>
+	[ SGSN-Number ]
+	[ MME-Name ]
+	[ SGSN-Name ]
+	[ SGSN-Realm ]
+	[ MME-Realm ]
+	[ MSC-Number ]
+	[ 3GPP-AAA-Server-Name ]
+	[ LCS-Capabilities-Sets ]
+	[ GMLC-Address ]
+	*[AVP]

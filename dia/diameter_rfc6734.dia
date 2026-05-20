@@ -1,0 +1,61 @@
+;;
+;; %CopyrightBegin%
+;;
+;; Transcribed from RFC 6734 by Harald Welte <laforge@gnumonks.org>
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;     https://www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; %CopyrightEnd%
+;;
+
+;;
+;; RFC 6734, Diameter Attribute-Value Pairs for Cryptographic Key Transport
+;;
+
+@id 1
+
+@inherits diameter_gen_base_rfc6733
+
+;; ===========================================================================
+
+@avp_types
+
+	Key				581	Grouped			-
+	Key-Type			582	Enumerated		-
+	Key-Name			586	OctetString		-
+	Keying-Material			583	OctetString		-
+	Key-Lifetime			584	Unsigned32		-
+	Key-SPI				585	Unsigned32		-
+
+;; ===========================================================================
+
+@messages
+
+;; ===========================================================================
+
+@enum Key-Type
+	DSRK		0
+	RRK		1
+	RMSK		2
+
+;; ===========================================================================
+
+@grouped
+
+   Key ::= < AVP Header: 581 >
+             < Key-Type >
+             { Keying-Material }
+             [ Key-Lifetime ]
+             [ Key-Name ]
+             [ Key-SPI ]
+           * [ AVP ]

@@ -1,0 +1,144 @@
+;;
+;; 3GPP TS 29.273 STa application dictionary.
+;;
+
+@id     16777250
+@name   diameter_3gpp_ts29_273_sta
+@vendor 10415 3GPP
+
+@inherits diameter_gen_base_rfc6733
+@inherits diameter_3gpp_base
+@inherits diameter_3gpp_break_circles
+@inherits diameter_3gpp_ts29_212
+@inherits diameter_3gpp_ts29_214
+@inherits diameter_3gpp_ts29_229
+@inherits diameter_3gpp_ts29_272
+@inherits diameter_3gpp_ts29_273
+@inherits diameter_3gpp_ts32_299
+@inherits diameter_etsi_es283_034
+@inherits diameter_rfc4004
+@inherits diameter_rfc4006_cc
+@inherits diameter_rfc4072
+@inherits diameter_rfc5447
+@inherits diameter_rfc5580
+@inherits diameter_rfc5777
+@inherits diameter_rfc5778
+@inherits diameter_rfc7683
+@inherits diameter_rfc7944
+@inherits diameter_rfc8583
+
+@messages
+
+;; 7.2.2.1.1 Diameter-EAP-Request (DER)
+DER ::= < Diameter Header: 268, REQ, PXY >
+        < Session-Id >
+        { Auth-Application-Id }
+        { Origin-Host }
+        { Origin-Realm }
+        { Destination-Realm }
+        { Auth-Request-Type }
+        { EAP-Payload }
+        [ Destination-Host ]
+        [ User-Name ]
+        [ Service-Selection ]
+        [ UE-Local-IP-Address ]
+        [ AN-Trusted ]
+        [ MIP6-Feature-Vector ]
+      * [ AVP ]
+
+;; 7.2.2.1.2 Diameter-EAP-Answer (DEA)
+DEA ::= < Diameter Header: 268, PXY >
+        < Session-Id >
+        { Auth-Application-Id }
+        { Auth-Request-Type }
+        { Result-Code }
+        { Origin-Host }
+        { Origin-Realm }
+        [ User-Name ]
+        [ EAP-Payload ]
+        [ EAP-Master-Session-Key ]
+        [ APN-Configuration ]
+        [ MIP6-Feature-Vector ]
+      * [ AVP ]
+
+;; 7.2.2.1.3 Diameter-AA-Request (AAR)
+AAR ::= < Diameter Header: 265, REQ, PXY >
+        < Session-Id >
+        { Auth-Application-Id }
+        { Origin-Host }
+        { Origin-Realm }
+        { Destination-Realm }
+        { Auth-Request-Type }
+        [ Destination-Host ]
+        [ User-Name ]
+        [ Service-Selection ]
+        [ MIP6-Agent-Info ]
+        [ MIP6-Feature-Vector ]
+      * [ AVP ]
+
+;; 7.2.2.1.4 Diameter-AA-Answer (AAA)
+AAA ::= < Diameter Header: 265, PXY >
+        < Session-Id >
+        { Auth-Application-Id }
+        { Auth-Request-Type }
+        { Result-Code }
+        { Origin-Host }
+        { Origin-Realm }
+        [ User-Name ]
+        [ APN-Configuration ]
+        [ MIP6-Feature-Vector ]
+      * [ AVP ]
+
+STR ::= < Diameter Header: 275, REQ, PXY >
+        < Session-Id >
+        { Auth-Application-Id }
+        { Origin-Host }
+        { Origin-Realm }
+        { Destination-Realm }
+        { Termination-Cause }
+        [ User-Name ]
+      * [ AVP ]
+
+STA ::= < Diameter Header: 275, PXY >
+        < Session-Id >
+        { Result-Code }
+        { Origin-Host }
+        { Origin-Realm }
+      * [ AVP ]
+
+RAR ::= < Diameter Header: 258, REQ, PXY >
+        < Session-Id >
+        { Origin-Host }
+        { Origin-Realm }
+        { Destination-Realm }
+        { Destination-Host }
+        { Auth-Application-Id }
+        { Re-Auth-Request-Type }
+        [ User-Name ]
+      * [ AVP ]
+
+RAA ::= < Diameter Header: 258, PXY >
+        < Session-Id >
+        { Result-Code }
+        { Origin-Host }
+        { Origin-Realm }
+        [ User-Name ]
+      * [ AVP ]
+
+ASR ::= < Diameter Header: 274, REQ, PXY >
+        < Session-Id >
+        { Origin-Host }
+        { Origin-Realm }
+        { Destination-Realm }
+        { Destination-Host }
+        { Auth-Application-Id }
+        [ User-Name ]
+        [ Auth-Session-State ]
+      * [ AVP ]
+
+ASA ::= < Diameter Header: 274, PXY >
+        < Session-Id >
+        { Result-Code }
+        { Origin-Host }
+        { Origin-Realm }
+      * [ AVP ]

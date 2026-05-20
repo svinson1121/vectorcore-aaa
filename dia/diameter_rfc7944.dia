@@ -1,0 +1,53 @@
+;;
+;; %CopyrightBegin%
+;;
+;; Transcribed from RFC 7944 by Harald Welte <laforge@gnumonks.org>
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;     https://www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; %CopyrightEnd%
+;;
+
+;;
+;; RFC 7944, Diameter Routing Message Priority
+;;
+
+@id 1
+
+@inherits diameter_gen_base_rfc6733
+
+;; ===========================================================================
+
+@avp_types
+
+	DRMP			301	Enumerated	-
+
+;; ===========================================================================
+
+@enum DRMP
+	PRIORITY_15	15
+	PRIORITY_14	14
+	PRIORITY_13	13
+	PRIORITY_12	12
+	PRIORITY_11	11
+	PRIORITY_10	10
+	PRIORITY_9	9
+	PRIORITY_8	8
+	PRIORITY_7	7
+	PRIORITY_6	6
+	PRIORITY_5	5
+	PRIORITY_4	4
+	PRIORITY_3	3
+	PRIORITY_2	2
+	PRIORITY_1	1
+	PRIORITY_0	0

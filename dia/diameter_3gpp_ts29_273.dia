@@ -1,0 +1,177 @@
+;;
+;; %CopyrightBegin%
+;;
+;; Copyright (C) 2023 by sysmocom - s.f.m.c. GmbH <info@sysmocom.de>
+;; Author: Alexander Couzens <lynxis@fe80.eu>
+;;
+;; This resembles 3GPP TS 29.273 version 15.4.0 Release 15
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;     https://www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; %CopyrightEnd%
+;;
+
+;;
+;; Edits:
+;;
+;;
+
+@id     0
+@name   diameter_3gpp_ts29_273
+;;@prefix diameter_3gpp
+@vendor 10415 3GPP
+
+@inherits diameter_gen_base_rfc6733
+@inherits diameter_3gpp_base
+@inherits diameter_3gpp_break_circles
+@inherits diameter_3gpp_ts29_212
+@inherits diameter_3gpp_ts29_272 AMBR APN-Configuration Context-Identifier Core-Network-Restrictions PDN-Type Trace-Data Trace-Reference UE-Usage-Type
+@inherits diameter_3gpp_ts32_299
+@inherits diameter_etsi_es283_034
+@inherits diameter_rfc4006_cc
+@inherits diameter_rfc5580
+@inherits diameter_rfc5778
+@inherits diameter_rfc7683
+@inherits diameter_rfc7944
+
+@avp_types
+	MIP6-Feature-Vector				124		Unsigned64			M		;; 5.2.3.3
+	3GPP-AAA-Server-Name			318		DiameterIdentity	MV		;; 8.2.3.24
+	Mobile-Node-Identifier			506		UTF8String			M		;; 5.2.3.2
+
+	Non-3GPP-User-Data				1500	Grouped				MV		;; 8.2.3.1
+	Non-3GPP-IP-Access				1501	Enumerated			MV		;; 8.2.3.3
+	Non-3GPP-IP-Access-APN			1502	Enumerated			MV		;; 8.2.3.4
+	AN-Trusted						1503	Enumerated			MV		;; 5.2.3.9
+	ANID							1504	UTF8String			MV		;; 5.2.3.7
+	Trace-Info						1505	Grouped				V		;; 8.2.3.13
+	MIP-FA-RK						1506	OctetString			MV		;; 5.2.3.12
+	MIP-FA-RK-SPI					1507	Unsigned32			MV		;; 5.2.3.13
+	PPR-Flags						1508	Unsigned32			V		;; 8.2.3.17
+	WLAN-Identifier					1509	Grouped				V		;; 5.2.3.18
+	TWAN-Access-Info				1510	Grouped				V		;; 8.2.3.19
+	Access-Authorization-Flags		1511	Unsigned32			V		;; 8.2.3.20
+	TWAN-Default-APN-Context-Id		1512	Unsigned32			V		;; 8.2.3.18
+	;; 1513 - 1515 reserved
+	Full-Network-Name				1516	OctetString			V		;; 5.2.3.14
+	Short-Network-Name				1517	OctetString			V		;; 5.2.3.15
+	AAA-Failure-Indication			1518	Unsigned32			V		;; 8.2.3.21
+	Transport-Access-Type			1519	Enumerated			V		;; 5.2.3.19
+	DER-Flags						1520	Unsigned32			V		;; 5.2.3.20
+	DEA-Flags						1521	Unsigned32			V		;; 5.2.3.21
+	RAR-Flags						1522	Unsigned32			V		;; 9.2.3.1.5
+	DER-S6b-Flags					1523	Unsigned32			V		;; 9.2.3.7
+	SSID							1524	UTF8String			V		;; 5.2.3.22
+	HESSID							1525	UTF8String			V		;; 5.2.3.23
+	Access-Network-Info				1526	Grouped				V		;; 5.2.3.24
+	TWAN-Connection-Mode			1527	Unsigned32			V		;; 5.2.3.25
+	TWAN-Connectivity-Parameters	1528	Grouped				V		;; 5.2.3.26
+	Connectivity-Flags				1529	Unsigned32			V		;; 5.2.3.27
+	TWAN-PCO						1530	OctetString			V		;; 5.2.3.28
+	TWAG-CP-Address					1531	Address				V		;; 5.2.3.29
+	TWAG-UP-Address					1532	UTF8String			V		;; 5.2.3.30
+	TWAN-S2a-Failure-Cause			1533	Unsigned32			V		;; 5.2.3.31
+	SM-Back-Off-Timer				1534	Unsigned32			V		;; 5.2.3.32
+	WLCP-Key						1535	OctetString			V		;; 5.2.3.33
+	Origination-Time-Stamp			1536	Unsigned64			V		;; 9.2.3.2.6
+	Maximum-Wait-Time				1537	Unsigned32			V		;; 9.2.3.2.7
+	Emergency-Services				1538	Unsigned32			V		;; 7.2.3.4
+	AAR-Flags						1539	Unsigned32			V		;; 7.2.3.5
+	IMEI-Check-In-VPLMN-Result		1540	Unsigned32			V		;; 5.2.3.35
+	ERP-Authorization				1541	Unsigned32			V		;; 8.2.3.27
+
+@grouped
+
+;; 5.2.3.18
+WLAN-Identifier ::= < AVP Header: 1509 10415 >
+	[ SSID ]
+	[ HESSID ]
+	*[ AVP ]
+
+;; 5.2.3.24
+Access-Network-Info ::= < AVP Header: 1526 10415 >
+	[ SSID ]
+	[ BSSID ]
+	[ Location-Information ]
+	[ Location-Data ]
+	[ Operator-Name ]
+	[ Logical-Access-ID ]
+	*[ AVP ]
+
+
+;; 5.2.3.26
+TWAN-Connectivity-Parameters ::= < AVP Header: 1528 10415 >
+	[ Connectivity-Flags ]
+	[ Service-Selection ]
+	[ PDN-Type ]
+	* 2 [ Served-Party-IP-Address ]
+	[ TWAN-PCO ]
+	[ TWAG-UP-Address ]
+	[ TWAN-S2a-Failure-Cause ]
+	[ SM-Back-Off-Timer ]
+	*[ AVP ]
+
+;; 8.2.3.1
+Non-3GPP-User-Data ::= < AVP Header: 1500 10415 >
+	[ Subscription-Id ]
+	[ Non-3GPP-IP-Access ]
+	[ Non-3GPP-IP-Access-APN ]
+	*[ RAT-Type ]
+	[ Session-Timeout ]
+	[ MIP6-Feature-Vector ]
+	[ AMBR ]
+	[ 3GPP-Charging-Characteristics ]
+	[ Context-Identifier ]
+	[ APN-OI-Replacement ]
+	*[ APN-Configuration ]
+	[ Trace-Info ]
+	[ TWAN-Default-APN-Context-Id ]
+	*[ TWAN-Access-Info]
+	[ UE-Usage-Type ]
+	[ Emergency-Info ]
+	[ ERP-Authorization ]
+	[ Core-Network-Restrictions ]
+	*[ AVP ]
+
+;; 8.2.3.13
+Trace-Info ::= < AVP Header: 1505 10415>
+	[Trace-Data]
+	[Trace-Reference]
+	*[AVP]
+
+;; 8.2.3.19
+TWAN-Access-Info::= < AVP Header: 1510 10415 >
+	[ Access-Authorization-Flags ]
+	[ WLAN-Identifier ]
+	*[ AVP ]
+
+
+;; enums
+;; 5.2.3.9
+@enum AN-Trusted
+	TRUSTED							0
+	UNTRUSTED						1
+
+;; 5.2.3.19
+@enum Transport-Access-Type
+	BBF								0
+
+;; 8.2.3.3 / 1501
+@enum Non-3GPP-IP-Access
+	NON_3GPP_SUBSCRIPTION_ALLOWED	0
+	NON_3GPP_SUBSCRIPTION_BARRED	1
+
+;; 8.2.3.4
+@enum Non-3GPP-IP-Access-APN
+	NON_3GPP_APNS_ENABLE			0
+	NON_3GPP_APNS_DISABLE			1

@@ -1,0 +1,24 @@
+
+@name diameter_3gpp_break_circles
+@vendor 10415 3GPP
+
+@inherits diameter_rfc5447
+
+@avp_types
+
+	;; 29.272 depends on 29.273 (3GPP-AAA-Server), but 273 depends on Emergency-Info from 273
+	Emergency-Info			1687	Grouped		V
+	;; 29.273 depends on 29.272 (APN-OI-Replacement), ...
+	APN-OI-Replacement			1427	UTF8String	MV
+
+	;; 3-node-circular: 29.272 depends on 29.173 (GMLC-Address); 29.173 depends on 29.273 (3GPP-AAA-Server-Name); 29.273 depends on 29.272 (Trace-Data)
+	GMLC-Address				2405	Address		MV	;; from 29.173
+
+	GMLC-Number				1474	OctetString	MV	;; from 29.272
+	SGSN-Number				1489	OctetString	MV	;; from 29.272
+
+@grouped
+
+Emergency-Info ::= <AVP Header: 1687 10415>
+	[ MIP6-Agent-Info ]
+	*[ AVP ]

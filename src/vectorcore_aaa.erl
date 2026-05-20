@@ -1,0 +1,7 @@
+-module(vectorcore_aaa).
+
+-export([main/1]).
+
+main(_Args) ->
+	application:ensure_all_started(?MODULE),
+	timer:sleep(infinity).

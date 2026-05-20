@@ -1,0 +1,312 @@
+2026-05-12 18:58:47 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.141.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.1743140374.152043524.40608>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,ref},#Ref<0.1743140374.152043524.40608>}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 1395
+  neighbours:
+2026-05-12 18:58:47 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.141.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 18:58:48 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.150.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.1743140374.152043524.40608>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,ref},#Ref<0.1743140374.152043524.40608>}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 18:58:48 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.150.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 18:58:49 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.154.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.1743140374.152043524.40608>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,ref},#Ref<0.1743140374.152043524.40608>}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 18:58:49 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.154.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 18:58:50 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.158.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.1743140374.152043524.40608>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,ref},#Ref<0.1743140374.152043524.40608>}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 18:58:50 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.158.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 18:58:51 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.162.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.1743140374.152043524.40608>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,ref},#Ref<0.1743140374.152043524.40608>}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 18:58:51 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.162.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 20:53:54 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.141.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,cb},{#Ref<0.2544919490.3390308356.12281>,[]}},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,ref},#Ref<0.2544919490.3390308356.12281>},{{diameter_peer_fsm,restrict},[nonode@nohost]}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 1395
+  neighbours:
+2026-05-12 20:53:54 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.141.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 20:53:55 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.150.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,cb},{#Ref<0.2544919490.3390308356.12281>,[]}},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,ref},#Ref<0.2544919490.3390308356.12281>},{{diameter_peer_fsm,restrict},[nonode@nohost]}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 20:53:55 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.150.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 20:53:56 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.154.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,cb},{#Ref<0.2544919490.3390308356.12281>,[]}},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,ref},#Ref<0.2544919490.3390308356.12281>},{{diameter_peer_fsm,restrict},[nonode@nohost]}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 20:53:56 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.154.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 20:53:57 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.158.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,cb},{#Ref<0.2544919490.3390308356.12281>,[]}},{{diameter_peer_fsm,mask},{0,32}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,ref},#Ref<0.2544919490.3390308356.12281>},{{diameter_peer_fsm,restrict},[nonode@nohost]}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 20:53:57 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.158.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 21:03:25 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.145.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.3099258572.1781792772.225391>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,ref},#Ref<0.3099258572.1781792772.225391>},{{diameter_peer_fsm,mask},{0,32}}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 305
+  neighbours:
+2026-05-12 21:03:25 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.145.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 21:03:26 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.155.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.3099258572.1781792772.225391>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,ref},#Ref<0.3099258572.1781792772.225391>},{{diameter_peer_fsm,mask},{0,32}}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 21:03:26 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.155.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 21:03:27 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.159.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.3099258572.1781792772.225391>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,ref},#Ref<0.3099258572.1781792772.225391>},{{diameter_peer_fsm,mask},{0,32}}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 21:03:27 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.159.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+
+2026-05-12 21:03:28 =CRASH REPORT====
+  crasher:
+    initial call: diameter_peer_fsm:init/1
+    pid: <0.163.0>
+    registered_name: []
+    process_label: undefined
+    exception error: {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+    ancestors: [diameter_peer_fsm_sup,diameter_sup,<0.118.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.129.0>]
+    dictionary: [{{diameter_peer_fsm,cb},{#Ref<0.3099258572.1781792772.225391>,[]}},{{diameter_peer_fsm,restrict},[nonode@nohost]},{{diameter_peer_fsm,dpa},{5000,1000}},{{diameter_peer_fsm,dpr},[]},{{diameter_peer_fsm,ref},#Ref<0.3099258572.1781792772.225391>},{{diameter_peer_fsm,mask},{0,32}}]
+    trap_exit: false
+    status: running
+    heap_size: 75113
+    stack_size: 29
+    reductions: 253
+  neighbours:
+2026-05-12 21:03:28 =SUPERVISOR REPORT====
+     Supervisor: {local,diameter_peer_fsm_sup}
+     Context:    child_terminated
+     Reason:     {{badmatch,{error,{shutdown,{open,eperm}}}},[{diameter_sctp,s,4,[{file,"transport/diameter_sctp.erl"},{line,241}]},{diameter_peer,start,7,[{file,"base/diameter_peer.erl"},{line,174}]},{diameter_peer_fsm,start_transport,2,[{file,"base/diameter_peer_fsm.erl"},{line,287}]},{diameter_peer_fsm,i,1,[{file,"base/diameter_peer_fsm.erl"},{line,245}]},{diameter_peer_fsm,init,1,[{file,"base/diameter_peer_fsm.erl"},{line,222}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,329}]}]}
+     Offender:   [{pid,<0.163.0>},{id,diameter_peer_fsm},{mfargs,{diameter_peer_fsm,start_link,undefined}},{restart_type,temporary},{significant,false},{shutdown,1000},{child_type,worker}]
+

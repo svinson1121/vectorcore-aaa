@@ -1,0 +1,10 @@
+%-*- mode: erlang -*-
+{application, vectorcore_aaa,
+  [
+	{description, "Standalone 3GPP AAA for non-3GPP access"},
+	{vsn, "0.1.0"},
+	{registered, []},
+	{applications, [kernel, stdlib, crypto, lager, diameter]},
+	{mod, {vectorcore_aaa_app, []}},
+	{env, []}
+]}.

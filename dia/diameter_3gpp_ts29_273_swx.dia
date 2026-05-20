@@ -1,0 +1,201 @@
+;;
+;; %CopyrightBegin%
+;;
+;; Copyright (C) 2023 by sysmocom - s.f.m.c. GmbH <info@sysmocom.de>
+;; Author: Alexander Couzens <lynxis@fe80.eu>
+;;
+;; This resembles 3GPP TS 29.273 version 15.4.0 Release 15
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;     https://www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; %CopyrightEnd%
+;;
+
+;;
+;; Edits:
+;;
+;;
+
+
+@id     16777265
+@name   diameter_3gpp_ts29_273_swx
+;;@prefix diameter_3gpp
+@vendor 10415 3GPP
+
+@inherits diameter_gen_base_rfc6733
+@inherits diameter_3gpp_base
+@inherits diameter_3gpp_break_circles
+@inherits diameter_3gpp_ts29_212
+@inherits diameter_3gpp_ts29_214
+@inherits diameter_3gpp_ts29_229
+@inherits diameter_3gpp_ts29_272
+@inherits diameter_3gpp_ts29_273
+@inherits diameter_3gpp_ts32_299
+@inherits diameter_etsi_es283_034
+@inherits diameter_rfc4004
+@inherits diameter_rfc4005_nasreq Framed-Interface-Id Framed-IP-Address Framed-IPv6-Prefix
+@inherits diameter_rfc4006_cc
+@inherits diameter_rfc5447
+@inherits diameter_rfc5580
+@inherits diameter_rfc5778
+@inherits diameter_rfc7683
+@inherits diameter_rfc7944
+@inherits diameter_rfc8583
+
+@messages
+
+;; 8. SWx
+;; 8.2.2.1 Multimedia-Auth-Request
+
+	MAR ::= < Diameter Header: 303, REQ, PXY >
+		< Session-Id >
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		{ Destination-Realm }
+		{ User-Name }
+		{ Vendor-Specific-Application-Id }
+		{ SIP-Auth-Data-Item }
+		{ SIP-Number-Auth-Items }
+		[ Destination-Host ]
+		[ RAT-Type ]
+		[ DRMP ]
+		[ ANID ]
+		[ Visited-Network-Identifier]
+		[ Terminal-Information ]
+		[AAA-Failure-Indication ]
+		[ OC-Supported-Features ]
+		*[ Supported-Features ]
+		*[ AVP ]
+
+;; 8.2.2.1 Multimedia-Auth-Answer
+	MAA ::= < Diameter Header: 303, PXY >
+		< Session-Id >
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		{ Vendor-Specific-Application-Id }
+		{ User-Name}
+		[ DRMP ]
+		[ Result-Code ]
+		[ Experimental-Result ]
+		[ SIP-Number-Auth-Items ]
+		*[ SIP-Auth-Data-Item ]
+		[ 3GPP-AAA-Server-Name ]
+		[ OC-Supported-Features ]
+		[ OC-OLR ]
+		*[ Load ]
+		*[ Supported-Features ]
+		*[ AVP ]
+
+;; 8.2.2.2 Push-Profile-Request
+	PPR ::= < Diameter Header: 305, REQ >
+		< Session-Id >
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		{ Destination-Host }
+		{ Destination-Realm }
+		{ Vendor-Specific-Application-Id }
+		{ User-Name }
+		[ DRMP ]
+		[ Non-3GPP-User-Data ]
+		[ PPR-Flags ]
+		*[ Supported-Features ]
+		*[ AVP ]
+
+;; 8.2.2.2 Push-Profile-Answer
+	PPA ::= < Diameter Header: 305, PXY >
+		< Session-Id >
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		{ Vendor-Specific-Application-Id }
+		[ DRMP ]
+		[ Result-Code ]
+		[ Experimental-Result ]
+		[ Access-Network-Info ]
+		[ Local-Time-Zone ]
+		*[ Supported-Features ]
+		*[ AVP ]
+
+;; 8.2.2.3 Server-Assignment-Request
+	SAR ::= < Diameter Header: 301, REQ, PXY >
+		< Session-Id >
+		{ Vendor-Specific-Application-Id }
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		{ Destination-Realm }
+		{ User-Name }
+		{ Server-Assignment-Type }
+		[ DRMP ]
+		[ Destination-Host ]
+		[ Service-Selection ]
+		[ Context-Identifier ]
+		[ MIP6-Agent-Info ]
+		[ Visited-Network-Identifier ]
+		*[ Active-APN ]
+		[ OC-Supported-Features ]
+		*[ Supported-Features ]
+		[ Terminal-Information ]
+		[ Emergency-Services ]
+		*[ AVP ]
+
+;; 8.2.2.3 Server-Assignment-Answer
+	SAA ::= < Diameter Header: 301, PXY >
+		< Session-Id >
+		{ Vendor-Specific-Application-Id }
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		{ User-Name}
+		[ DRMP ]
+		[ Result-Code ]
+		[ Experimental-Result ]
+		[ Non-3GPP-User-Data ]
+		[ 3GPP-AAA-Server-Name ]
+		[ OC-Supported-Features ]
+		[ OC-OLR ]
+		*[ Load ]
+		*[ Supported-Features ]
+		*[ AVP ]
+
+;; 8.2.2.4 Registration-Termination-Request
+	RTR ::=< Diameter Header: 304, REQ, PXY >
+		< Session-Id >
+		{ Vendor-Specific-Application-Id }
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		{ Destination-Host }
+		{ Destination-Realm }
+		{ User-Name }
+		{ Deregistration-Reason }
+		[ DRMP ]
+		*[ Supported-Features ]
+		*[ AVP ]
+
+;; 8.2.2.4 Registration-Termination-Answer
+	RTA ::=< Diameter Header: 304, PXY >
+		< Session-Id >
+		{ Vendor-Specific-Application-Id }
+		{ Auth-Session-State }
+		{ Origin-Host }
+		{ Origin-Realm }
+		[ DRMP ]
+		[ Result-Code ]
+		[ Experimental-Result ]
+		*[ Supported-Features ]
+		*[ AVP ]
+
