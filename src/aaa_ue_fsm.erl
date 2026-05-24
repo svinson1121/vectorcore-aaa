@@ -83,6 +83,7 @@
 	        pgw_sess_active  = false   :: boolean(),
 	        access_auth_identity        :: binary() | undefined,
 	        access_auth_tuple          :: #epdg_auth_tuple{} | undefined,
+	        access_auth_keying_material = #{} :: map(),
 	        s6b_resp_pid               :: pid(),
 	        s6b_authz = #{}            :: map()
 	        }).
@@ -432,25 +433,36 @@ log_eap_aka_challenge_response_validation(#ue_fsm_data{imsi = Imsi}, AccessIf, V
 	false -> rejected
 	end,
 	lager:info("eap_aka_prime: challenge response validation imsi=~p access_if=~p eap_identifier=~p "
-	           "has_at_res=~p at_res_hex=~p expected_xres_hex=~p res_match=~p "
-	           "has_at_mac=~p at_mac_hex=~p calculated_mac_hex=~p mac_match=~p "
-	           "k_aut_len=~p ck_len=~p ik_len=~p kdf_input=~p identity_for_key_derivation=~p "
+	           "subscriber_imsi=~p eap_identity=~p "
+	           "auth_scheme=~p eap_code=~p eap_type=~p eap_subtype=~p eap_packet_len=~p "
+	           "has_at_res=~p at_res_len=~p expected_xres_len=~p res_match=~p "
+	           "has_at_mac=~p at_mac_len=~p mac_match=~p "
+	           "k_aut_len=~p ck_len=~p ik_len=~p key_derivation=~p kdf_input=~p "
+	           "identity_for_key_derivation=~p mac_input_len=~p "
 	           "final_decision=~p failure_reason=~p~n",
 	           [Imsi, AccessIf,
 	            maps:get(eap_identifier, Validation, undefined),
+	            Imsi,
+	            maps:get(identity_for_key_derivation, Validation, undefined),
+	            maps:get(auth_scheme, Validation, undefined),
+	            maps:get(eap_code, Validation, undefined),
+	            maps:get(eap_type, Validation, undefined),
+	            maps:get(eap_subtype, Validation, undefined),
+	            maps:get(eap_packet_len, Validation, undefined),
 	            maps:get(has_at_res, Validation, false),
-	            hex(maps:get(at_res, Validation, undefined)),
-	            hex(maps:get(expected_xres, Validation, undefined)),
+	            maps:get(at_res_len, Validation, undefined),
+	            maps:get(expected_xres_len, Validation, undefined),
 	            maps:get(res_match, Validation, false),
 	            maps:get(has_at_mac, Validation, false),
-	            hex(maps:get(at_mac, Validation, undefined)),
-	            hex(maps:get(calculated_mac, Validation, undefined)),
+	            maps:get(at_mac_len, Validation, undefined),
 	            maps:get(mac_match, Validation, false),
 	            binary_len(maps:get(k_aut, Validation, undefined)),
 	            binary_len(maps:get(ck, Validation, undefined)),
 	            binary_len(maps:get(ik, Validation, undefined)),
+	            maps:get(key_derivation, Validation, undefined),
 	            maps:get(kdf_input, Validation, undefined),
 	            maps:get(identity_for_key_derivation, Validation, undefined),
+	            maps:get(mac_input_len, Validation, undefined),
 	            FinalDecision,
 	            maps:get(failure_reason, Validation, undefined)]).
 
@@ -461,10 +473,92 @@ log_eap_keying_material_available(#ue_fsm_data{imsi = Imsi}, Validation) ->
 	            binary_len(maps:get(msk, Validation, undefined)),
 	            binary_len(maps:get(emsk, Validation, undefined))]).
 
-hex(Bin) when is_binary(Bin) ->
-	list_to_binary([io_lib:format("~2.16.0B", [Byte]) || <<Byte>> <= Bin]);
-hex(_) ->
-	undefined.
+log_subscriber_profile_received(#ue_fsm_data{imsi = Imsi}, ResInfo) ->
+	N3UA = maps:get(non_3gpp_user_data, ResInfo, []),
+	lager:info("AAA subscriber profile received imsi=~p non_3gpp_user_data_present=~p apn_count=~p~n",
+	           [Imsi, N3UA =/= [], length(apn_configurations(N3UA))]).
+
+log_apn_profile_selected(#ue_fsm_data{imsi = Imsi, apn = Apn}, ApnConfig, {Ul, Dl}) ->
+	#'APN-Configuration'{'Service-Selection' = ServiceSelection} = ApnConfig,
+	lager:info("AAA APN profile selected imsi=~p requested_apn=~p service_selection=~p "
+	           "ambr_present=true ambr_ul=~p ambr_dl=~p source='HSS/SWx'~n",
+	           [Imsi, Apn, ServiceSelection, Ul, Dl]).
+
+log_swm_authz_failure(#ue_fsm_data{imsi = Imsi, apn = Apn}, Reason) ->
+	case Reason of
+	missing_apn_profile ->
+		lager:error("SWm authorization failed: requested APN not authorized or APN profile missing "
+		            "IMSI=~p APN=~p reason=missing_apn_profile~n", [Imsi, Apn]);
+	missing_apn_ambr ->
+		lager:error("SWm authorization failed: APN AMBR missing "
+		            "IMSI=~p APN=~p reason=missing_apn_ambr~n", [Imsi, Apn]);
+	_ ->
+		lager:error("SWm authorization failed IMSI=~p APN=~p reason=~p~n", [Imsi, Apn, Reason])
+	end,
+	lager:error("SWm DEA success blocked reason=~p~n", [Reason]).
+
+swm_success_with_authz(Data, ResInfo) ->
+	log_subscriber_profile_received(Data, ResInfo),
+	case select_apn_profile(Data#ue_fsm_data.apn, maps:get(non_3gpp_user_data, ResInfo, [])) of
+	{ok, ApnConfig, {Ul, Dl}} ->
+		log_apn_profile_selected(Data, ApnConfig, {Ul, Dl}),
+		KeyingMaterial = Data#ue_fsm_data.access_auth_keying_material,
+		lager:info("SWm DEA success includes APN authorization profile imsi=~p apn=~p "
+		           "eap_success=true msk_len=~p non_3gpp_user_data_present=true "
+		           "apn_profile_present=true ambr_present=true ambr_ul=~p ambr_dl=~p~n",
+		           [Data#ue_fsm_data.imsi, Data#ue_fsm_data.apn,
+		            binary_len(maps:get(eap_msk, KeyingMaterial, undefined)), Ul, Dl]),
+		{ok, maps:merge(KeyingMaterial, #{apn_configuration => [ApnConfig],
+		                                  non_3gpp_user_data => maps:get(non_3gpp_user_data, ResInfo, [])})};
+	{error, Reason} ->
+		log_swm_authz_failure(Data, Reason),
+		{error, 5003}
+	end.
+
+select_apn_profile(Apn, N3UA) ->
+	ApnConfigs = apn_configurations(N3UA),
+	case [Config || #'APN-Configuration'{'Service-Selection' = ServiceSelection} = Config <- ApnConfigs,
+	                same_apn(ServiceSelection, Apn)] of
+	[ApnConfig | _] ->
+		case apn_ambr(ApnConfig) of
+		{ok, Ambr} -> {ok, ApnConfig, Ambr};
+		error -> {error, missing_apn_ambr}
+		end;
+	[] ->
+		{error, missing_apn_profile}
+	end.
+
+apn_configurations([#'Non-3GPP-User-Data'{'APN-Configuration' = ApnConfigs} | _]) ->
+	ApnConfigs;
+apn_configurations(_) ->
+	[].
+
+apn_ambr(#'APN-Configuration'{'AMBR' = AMBR}) ->
+	case first(AMBR) of
+	#'AMBR'{'Max-Requested-Bandwidth-UL' = Ul0,
+	        'Max-Requested-Bandwidth-DL' = Dl0} ->
+		case {bandwidth_value(Ul0), bandwidth_value(Dl0)} of
+		{Ul, Dl} when is_integer(Ul), is_integer(Dl) -> {ok, {Ul, Dl}};
+		_ -> error
+		end;
+	_ ->
+		error
+	end.
+
+first([Value | _]) -> Value;
+first(Value) -> Value.
+
+bandwidth_value([Value | _]) when is_integer(Value) -> Value;
+bandwidth_value(Value) when is_integer(Value) -> Value;
+bandwidth_value(_) -> undefined.
+
+same_apn(ApnA, ApnB) ->
+	to_binary(ApnA) =:= to_binary(ApnB).
+
+to_binary(Value) when is_binary(Value) -> Value;
+to_binary(Value) when is_list(Value) -> list_to_binary(Value);
+to_binary(undefined) -> <<>>;
+to_binary(Value) -> list_to_binary(io_lib:format("~p", [Value])).
 
 binary_len(Bin) when is_binary(Bin) ->
 	byte_size(Bin);
@@ -494,12 +588,22 @@ handle_eap_aka_challenge_response({_Pid, _Tag} = From, AccessIf, AccessType, Gat
 		                          access_session_id = SessionId,
 		                          access_auth_tuple = undefined,
 		                          access_auth_identity = undefined,
+		                          access_auth_keying_material = KeyingMaterial,
 		                          access_sess_active = true},
-		tx_access_auth_response(Data1, {ok, KeyingMaterial}),
-		case aaa_diameter_swx:server_assignment_request(Data1#ue_fsm_data.imsi, 1,
-		                                                Data1#ue_fsm_data.apn, []) of
-		ok -> {next_state, state_wait_swx_saa, Data1, [{reply,From,ok}]};
-		{error, Err} -> {keep_state, Data1, [{reply,From,{error, Err}}]}
+		case AccessIf of
+		swm ->
+			case aaa_diameter_swx:server_assignment_request(Data1#ue_fsm_data.imsi, 1,
+			                                                Data1#ue_fsm_data.apn, []) of
+			ok -> {next_state, state_wait_swx_saa, Data1, [{reply,From,ok}]};
+			{error, Err} -> {keep_state, Data1, [{reply,From,{error, Err}}]}
+			end;
+		_ ->
+			tx_access_auth_response(Data1, {ok, KeyingMaterial}),
+			case aaa_diameter_swx:server_assignment_request(Data1#ue_fsm_data.imsi, 1,
+			                                                Data1#ue_fsm_data.apn, []) of
+			ok -> {next_state, state_wait_swx_saa, Data1, [{reply,From,ok}]};
+			{error, Err} -> {keep_state, Data1, [{reply,From,{error, Err}}]}
+			end
 		end;
 	false ->
 		tx_access_auth_response(Data, {error, 5003}),
@@ -651,12 +755,33 @@ state_wait_swx_saa({call, From}, {rx_swx_saa, Result}, Data) ->
         lager:info("ue_fsm state_wait_swx_saa event=rx_swx_saa ~p, ~p~n", [Result, Data]),
         case Result of
         {error, _SAType, DiaRC} ->
-                tx_access_auth_complete_response(Data, {error, DiaRC}),
-                {next_state, state_new, Data, [{reply,From,ok}]};
+                case {Data#ue_fsm_data.access_if, maps:is_key(eap_msk, Data#ue_fsm_data.access_auth_keying_material)} of
+                {swm, true} ->
+                        tx_access_auth_response(Data, {error, DiaRC});
+                _ ->
+                        tx_access_auth_complete_response(Data, {error, DiaRC})
+                end,
+                Data1 = Data#ue_fsm_data{access_auth_keying_material = #{}},
+                {next_state, state_new, Data1, [{reply,From,ok}]};
         {ok, _SAType, ResInfo} ->
-                tx_access_auth_complete_response(Data, {ok, ResInfo}),
-                Data1 = Data#ue_fsm_data{s6b_authz = ResInfo},
-                {next_state, state_authenticated, Data1, [{reply,From,ok}]}
+                case {Data#ue_fsm_data.access_if, maps:is_key(eap_msk, Data#ue_fsm_data.access_auth_keying_material)} of
+                {swm, true} ->
+                        case swm_success_with_authz(Data, ResInfo) of
+                        {ok, AuthzResult} ->
+                                tx_access_auth_response(Data, {ok, AuthzResult}),
+                                Data1 = Data#ue_fsm_data{s6b_authz = ResInfo,
+                                                          access_auth_keying_material = #{}},
+                                {next_state, state_authenticated, Data1, [{reply,From,ok}]};
+                        {error, DiaRC} ->
+                                tx_access_auth_response(Data, {error, DiaRC}),
+                                Data1 = Data#ue_fsm_data{access_auth_keying_material = #{}},
+                                {next_state, state_new, Data1, [{reply,From,ok}]}
+                        end;
+                _ ->
+                        tx_access_auth_complete_response(Data, {ok, ResInfo}),
+                        Data1 = Data#ue_fsm_data{s6b_authz = ResInfo},
+                        {next_state, state_authenticated, Data1, [{reply,From,ok}]}
+                end
         end;
 
 state_wait_swx_saa({call, _From}, {rx_s6b_aar, NAI, Apn, AgentInfoOpt, Mip6FeatureVectorOpt}, Data) ->
@@ -894,7 +1019,11 @@ non_3gpp_user_data() ->
                                 'APN-Configuration' = [
                                     #'APN-Configuration'{'Context-Identifier' = 1,
                                                          'PDN-Type' = 0,
-                                                         'Service-Selection' = "internet"}]}].
+                                                         'Service-Selection' = "internet",
+                                                         'AMBR' = [
+                                                             #'AMBR'{'Max-Requested-Bandwidth-UL' = 50000000,
+                                                                     'Max-Requested-Bandwidth-DL' = 200000000}
+                                                         ]}]}].
 
 initial_eap_identity_is_not_final_auth_test() ->
         ?assertEqual(false, is_eap_aka_challenge_response(eap_response_identity_payload())),

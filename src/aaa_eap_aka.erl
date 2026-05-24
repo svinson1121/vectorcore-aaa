@@ -30,7 +30,7 @@
 -define(EAP_AKA_AT_KDF, 24).
 -define(EAP_AKA_PRIME_KDF_CK_IK, 1).
 -define(FIPS186_2_PRF_BLOCK_BYTES, 40).
--define(FIPS186_2_PRF_MODULUS, 1 bsl 160).
+-define(FIPS186_2_PRF_MODULUS, (1 bsl 160)).
 
 identity_request(EapId) ->
 	identity_request(aka, EapId).
@@ -146,23 +146,33 @@ verify_challenge_response_details(Method,
 			FailureReason = validation_failure_reason(ReceivedRes, ResMatch, true, MacMatch),
 			validation_details(EapId, ReceivedRes, ExpectedRes, ResMatch,
 					   true, ReceivedMac, CalculatedMac, MacMatch,
-					   KAut, IK, CK, Identity, Method, FailureReason);
+					   KAut, IK, CK, Identity, Method, FailureReason,
+					   #{eap_code => ?EAP_CODE_RESPONSE,
+					     eap_type => EapType,
+					     eap_subtype => ?EAP_AKA_SUBTYPE_CHALLENGE,
+					     eap_packet_len => Len,
+					     mac_input_len => byte_size(PacketWithZeroMac)});
 		false ->
 			FailureReason = validation_failure_reason(ReceivedRes, ResMatch, false, false),
 			validation_details(EapId, ReceivedRes, ExpectedRes, ResMatch,
 					   false, undefined, undefined, false,
-					   undefined, IK, CK, Identity, Method, FailureReason)
+					   undefined, IK, CK, Identity, Method, FailureReason,
+					   #{eap_code => ?EAP_CODE_RESPONSE,
+					     eap_type => EapType,
+					     eap_subtype => ?EAP_AKA_SUBTYPE_CHALLENGE,
+					     eap_packet_len => Len,
+					     mac_input_len => undefined})
 		end;
 	false ->
 		validation_details(undefined, undefined, ExpectedRes, false,
 				   false, undefined, undefined, false,
-				   undefined, IK, CK, Identity, Method, method_mismatch)
+				   undefined, IK, CK, Identity, Method, method_mismatch, #{})
 	end;
 verify_challenge_response_details(Method, _Payload, Identity,
 				  #epdg_auth_tuple{res = ExpectedRes, ik = IK, ck = CK}) ->
 	validation_details(undefined, undefined, ExpectedRes, false,
 			   false, undefined, undefined, false,
-			   undefined, IK, CK, Identity, Method, parse_error).
+			   undefined, IK, CK, Identity, Method, parse_error, #{}).
 
 response_identity(<<2, _EapId, Len:16/integer-big, 1, Rest/binary>> = Payload)
 		when Len >= 5, Len =< byte_size(Payload) ->
@@ -367,15 +377,18 @@ validation_failure_reason(_ReceivedRes, true, true, false) ->
 
 validation_details(EapId, ReceivedRes, ExpectedRes, ResMatch,
 		   HasMac, ReceivedMac, CalculatedMac, MacMatch,
-		   KAut, IK, CK, Identity, Method, FailureReason) ->
+		   KAut, IK, CK, Identity, Method, FailureReason, Extra) ->
 	NetworkName = validation_network_name(Method),
 	Details = #{valid => FailureReason =:= none,
 		    eap_identifier => EapId,
 		    has_at_res => is_binary(ReceivedRes),
+		    at_res_len => binary_len(ReceivedRes),
 		    at_res => ReceivedRes,
 		    expected_xres => ExpectedRes,
+		    expected_xres_len => binary_len(ExpectedRes),
 		    res_match => ResMatch,
 		    has_at_mac => HasMac,
+		    at_mac_len => binary_len(ReceivedMac),
 		    at_mac => ReceivedMac,
 		    calculated_mac => CalculatedMac,
 		    mac_match => MacMatch,
@@ -384,12 +397,15 @@ validation_details(EapId, ReceivedRes, ExpectedRes, ResMatch,
 		    ck => CK,
 		    kdf_input => NetworkName,
 		    identity_for_key_derivation => identity_binary(Identity),
+		    auth_scheme => auth_scheme(Method),
+		    key_derivation => key_source(Method),
 		    failure_reason => FailureReason},
+	Details1 = maps:merge(Details, Extra),
 	case FailureReason of
 	none ->
-		maps:merge(Details, keying_material(Method, Identity, IK, CK));
+		maps:merge(Details1, keying_material(Method, Identity, IK, CK));
 	_ ->
-		Details
+		Details1
 	end.
 
 validation_network_name({aka_prime, NetworkName}) ->
@@ -420,6 +436,11 @@ key_source(aka_prime) ->
 key_source(_) ->
 	hss_returned_ck_ik.
 
+auth_scheme(aka) ->
+	<<"EAP-AKA">>;
+auth_scheme(_) ->
+	<<"EAP-AKA'">>.
+
 normalized_imsi_for_log(Identity0) ->
 	Identity = identity_binary(Identity0),
 	case binary:split(Identity, <<"@">>) of
@@ -442,8 +463,7 @@ binary_foldl(Fun, Acc0, Bin) when is_binary(Bin) ->
 	lists:foldl(Fun, Acc0, binary:bin_to_list(Bin)).
 
 fips186_2_prf(Seed, Len) ->
-	XKey = pad_seed(Seed),
-	fips186_2_prf(XKey, Len, <<>>).
+	fips186_2_prf(xkey(Seed), Len, <<>>).
 
 fips186_2_prf(_XKey, Len, Acc) when byte_size(Acc) >= Len ->
 	binary:part(Acc, 0, Len);
@@ -456,19 +476,22 @@ fips186_2_prf_block(XKey0) ->
 	{W1, XKey2} = fips186_2_prf_word(XKey1),
 	{<<W0/binary, W1/binary>>, XKey2}.
 
-fips186_2_prf_word(XKey) ->
-	W = sha1_compress(sha1_initial_state(), XKey),
+fips186_2_prf_word(XKey) when byte_size(XKey) =:= 20 ->
+	W = sha1_dss(XKey),
 	{W, add_mod_160(XKey, W)}.
 
-pad_seed(Seed) when byte_size(Seed) >= 64 ->
-	binary:part(Seed, 0, 64);
-pad_seed(Seed) ->
-	PadLen = 64 - byte_size(Seed),
+xkey(Seed) when byte_size(Seed) >= 20 ->
+	binary:part(Seed, 0, 20);
+xkey(Seed) ->
+	PadLen = 20 - byte_size(Seed),
 	<<Seed/binary, 0:(PadLen * 8)>>.
 
-add_mod_160(<<X:160/integer-big, _/binary>>, <<W:160/integer-big>>) ->
+add_mod_160(<<X:160/integer-big>>, <<W:160/integer-big>>) ->
 	X1 = (X + W + 1) rem ?FIPS186_2_PRF_MODULUS,
-	<<X1:160/integer-big, 0:352>>.
+	<<X1:160/integer-big>>.
+
+sha1_dss(XVal) when byte_size(XVal) =:= 20 ->
+	sha1_compress(sha1_initial_state(), <<XVal/binary, 0:352>>).
 
 sha1_initial_state() ->
 	{16#67452301, 16#EFCDAB89, 16#98BADCFE, 16#10325476, 16#C3D2E1F0}.
@@ -541,6 +564,59 @@ challenge_includes_valid_mac_test() ->
 	PacketWithZeroMac = <<Prefix/binary, 0:128>>,
 	KAut = k_aut(aka, <<"311435300070580">>, <<4:128>>, <<5:128>>),
 	?assertEqual(hmac_sha1_128(KAut, PacketWithZeroMac), binary:part(Packet, 52, 16)).
+
+aka_challenge_response_uses_peer_identity_for_plain_aka_test() ->
+	Identity = <<"0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org">>,
+	BareImsi = <<"311435300070580">>,
+	Tuple = #epdg_auth_tuple{rand = <<1:128>>,
+				 autn = <<2:128>>,
+				 res = <<3:64>>,
+				 ik = <<4:128>>,
+				 ck = <<5:128>>},
+	ResAttr = <<?EAP_AKA_AT_RES, 3, 64:16/integer-big, 3:64>>,
+	ZeroMacAttr = <<?EAP_AKA_AT_MAC, 5, 0:16, 0:128>>,
+	Len = 8 + byte_size(ResAttr) + byte_size(ZeroMacAttr),
+	PacketWithZeroMac = <<?EAP_CODE_RESPONSE, 9, Len:16/integer-big,
+			      ?EAP_TYPE_AKA, ?EAP_AKA_SUBTYPE_CHALLENGE, 0:16,
+			      ResAttr/binary, ZeroMacAttr/binary>>,
+	KAut = k_aut(aka, Identity, Tuple#epdg_auth_tuple.ik, Tuple#epdg_auth_tuple.ck),
+	Mac = mac_128(aka, KAut, PacketWithZeroMac),
+	Packet = <<?EAP_CODE_RESPONSE, 9, Len:16/integer-big,
+		   ?EAP_TYPE_AKA, ?EAP_AKA_SUBTYPE_CHALLENGE, 0:16,
+		   ResAttr/binary, ?EAP_AKA_AT_MAC, 5, 0:16, Mac/binary>>,
+	Success = verify_challenge_response_details(aka, Packet, Identity, Tuple),
+	?assertEqual(true, maps:get(valid, Success)),
+	?assertEqual(Identity, maps:get(identity_for_key_derivation, Success)),
+	Failure = verify_challenge_response_details(aka, Packet, BareImsi, Tuple),
+	?assertEqual(true, maps:get(res_match, Failure)),
+	?assertEqual(false, maps:get(mac_match, Failure)),
+	?assertEqual(mac_mismatch, maps:get(failure_reason, Failure)).
+
+plain_aka_k_aut_matches_swu_emulator_rfc4187_vector_test() ->
+	Identity = <<"0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org">>,
+	IK = <<16#f769bcd751044604127672711c6d3441:128>>,
+	CK = <<16#b40ba9a3c58b2a05bbf0d987b21bf8cb:128>>,
+	?assertEqual(<<16#b7e33b220832e9fafdeb3396160addea:128>>,
+		     k_aut(aka, Identity, IK, CK)).
+
+plain_aka_challenge_response_matches_swu_emulator_mac_test() ->
+	Identity = <<"0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org">>,
+	Tuple = #epdg_auth_tuple{rand = <<0:128>>,
+				 autn = <<0:128>>,
+				 res = <<16#a54211d5e3ba50bf:64>>,
+				 ik = <<16#f769bcd751044604127672711c6d3441:128>>,
+				 ck = <<16#b40ba9a3c58b2a05bbf0d987b21bf8cb:128>>},
+	Packet = <<?EAP_CODE_RESPONSE, 1, 40:16/integer-big,
+		   ?EAP_TYPE_AKA, ?EAP_AKA_SUBTYPE_CHALLENGE, 0:16,
+		   ?EAP_AKA_AT_RES, 3, 64:16/integer-big,
+		   16#a54211d5e3ba50bf:64,
+		   ?EAP_AKA_AT_MAC, 5, 0:16,
+		   16#ada7e0613c12c78efa3d725f91e27f04:128>>,
+	Validation = verify_challenge_response_details(aka, Packet, Identity, Tuple),
+	?assertEqual(true, maps:get(res_match, Validation)),
+	?assertEqual(true, maps:get(mac_match, Validation)),
+	?assertEqual(true, maps:get(valid, Validation)),
+	?assertEqual(none, maps:get(failure_reason, Validation)).
 
 terminal_failure_detects_client_error_test() ->
 	Packet = <<?EAP_CODE_RESPONSE, 23, 12:16/integer-big,

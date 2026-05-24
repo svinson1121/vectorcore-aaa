@@ -69,7 +69,7 @@ handle_request(#diameter_packet{msg = Req, errors = Errors}, _SvcName, {_, Caps}
 	       'User-Name' = UserNameOpt} = Req,
 	NAI = user_name(UserNameOpt),
 	Resp = dea_response(SessionId, AuthAppId, AuthReqType, OH, OR, NAI, {error, malformed_der_result(Errors)}),
-	lager:info("SWm DEA error Tx to ~p: ~p~n", [Caps, Resp]),
+	lager:info("SWm DEA error Tx to ~p: ~p~n", [Caps, redact_dea_for_log(Resp)]),
 	{reply, Resp};
 
 handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps}) when is_record(Req, 'DER') ->
@@ -84,6 +84,7 @@ handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps}) wh
 	Imsi = imsi_from_nai(NAI),
 	Apn = service_selection(Req),
 	EAP = decode_eap_payload(EapPayload),
+	log_eap_payload_identity(SessionId, NAI, Imsi, EAP),
 	PdpTypeNr = maps:get(pdp_type_nr, EAP, 33),
 	case aaa_eap_aka:terminal_failure(maps:get(authorization, EAP, undefined)) of
 	true ->
@@ -91,7 +92,7 @@ handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps}) wh
 		Resp = dea_response(SessionId, AuthAppId, AuthReqType, OH, OR, NAI,
 				    with_eap_context({error, ?DIAMETER_AUTHORIZATION_REJECTED}, EAP, NAI));
 	false ->
-		case aka_identity_request(EAP) of
+		case aka_identity_request(EAP, Imsi, NAI, SessionId) of
 		{ok, IdentityReq} ->
 			Resp = dea_response(SessionId, AuthAppId, AuthReqType, OH, OR, NAI,
 					    {eap_payload, ?DIAMETER_SUCCESS, IdentityReq});
@@ -111,7 +112,7 @@ handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps}) wh
 			end
 		end
 	end,
-	lager:info("SWm DEA Tx to ~p: ~p~n", [Caps, Resp]),
+	lager:info("SWm DEA Tx to ~p: ~p~n", [Caps, redact_dea_for_log(Resp)]),
 	{reply, Resp};
 
 handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps}) when is_record(Req, 'AAR') ->
@@ -250,6 +251,8 @@ wait_pending(sta) ->
 	end.
 
 dea_response(SessionId, AuthAppId, AuthReqType, OH, OR, NAI, Result) ->
+	EapMsk = eap_master_session_key(Result),
+	log_eap_master_session_key(NAI, EapMsk),
 	#'DEA'{'Session-Id' = SessionId,
 	       'Auth-Application-Id' = AuthAppId,
 	       'Auth-Request-Type' = AuthReqType,
@@ -257,7 +260,9 @@ dea_response(SessionId, AuthAppId, AuthReqType, OH, OR, NAI, Result) ->
 	       'Origin-Host' = OH,
 	       'Origin-Realm' = OR,
 	       'User-Name' = [NAI],
-	       'EAP-Payload' = encode_result_payload(Result)}.
+	       'EAP-Payload' = encode_result_payload(Result),
+	       'EAP-Master-Session-Key' = EapMsk,
+	       'APN-Configuration' = apn_configuration(Result)}.
 
 result_code({eap_context, Result, _EapId, _Identity}) -> result_code(Result);
 result_code({eap_payload, ResultCode, _Payload}) -> ResultCode;
@@ -282,6 +287,33 @@ is_missing_avp_error(_) -> false.
 with_eap_context(Result, EAP, NAI) ->
 	{eap_context, Result, maps:get(eap_identifier, EAP, 1), eap_identity(EAP, NAI)}.
 
+eap_master_session_key({eap_context, Result, _EapId, _Identity}) ->
+	eap_master_session_key(Result);
+eap_master_session_key({ok, #{eap_msk := MSK}}) when is_binary(MSK), byte_size(MSK) =:= 64 ->
+	MSK;
+eap_master_session_key(_) ->
+	[].
+
+apn_configuration({eap_context, Result, _EapId, _Identity}) ->
+	apn_configuration(Result);
+apn_configuration({ok, #{apn_configuration := ApnConfiguration}}) ->
+	ApnConfiguration;
+apn_configuration(_) ->
+	[].
+
+log_eap_master_session_key(_NAI, []) ->
+	ok;
+log_eap_master_session_key(NAI, MSK) ->
+	lager:info("SWm DEA success includes EAP keying material imsi=~p "
+		   "eap_payload=eap_success msk_len=~p key_avp='EAP-Master-Session-Key'~n",
+		   [imsi_from_nai(NAI), byte_size(MSK)]).
+
+redact_dea_for_log(#'DEA'{'EAP-Master-Session-Key' = MSK} = DEA)
+		when is_binary(MSK) ->
+	DEA#'DEA'{'EAP-Master-Session-Key' = {redacted, byte_size(MSK)}};
+redact_dea_for_log(DEA) ->
+	DEA.
+
 encode_result_payload({eap_context, Result, EapId, Identity}) ->
 	encode_result_payload(Result, EapId, Identity);
 encode_result_payload({eap_payload, _ResultCode, Payload}) ->
@@ -290,6 +322,7 @@ encode_result_payload(Result) ->
 	encode_result_payload(Result, 1, undefined).
 
 encode_result_payload({ok, [#epdg_auth_tuple{} = Tuple | _]}, EapId, Identity) ->
+	log_aka_challenge(Identity),
 	aaa_eap_aka:challenge(next_eap_id(EapId), Identity, Tuple);
 encode_result_payload({ok, _}, EapId, _Identity) ->
 	encode_eap_success(EapId);
@@ -317,15 +350,18 @@ next_eap_id(_) ->
 	1.
 
 eap_identity(EAP, NAI) ->
-	case maps:find(authorization, EAP) of
-	{ok, Authorization} when is_binary(Authorization) ->
-		case aaa_eap_aka:response_identity(Authorization) of
-		undefined -> identity_binary(NAI);
-		Identity -> Identity
-		end;
+	case maps:get(parsed_eap_identity, EAP, undefined) of
+	Identity when is_binary(Identity), byte_size(Identity) > 0 ->
+		Identity;
 	_ ->
 		identity_binary(NAI)
 	end.
+
+log_aka_challenge(Identity) ->
+	lager:info("eap_aka: building challenge subscriber_imsi=~p access_if=swm "
+		   "eap_identity=~p identity_for_key_derivation=~p auth_scheme=\"EAP-AKA\"~n",
+		   [normalize_imsi(imsi_from_nai(identity_binary(Identity))),
+		    identity_binary(Identity), identity_binary(Identity)]).
 
 identity_binary(Identity) when is_binary(Identity) ->
 	Identity;
@@ -357,27 +393,114 @@ octets_to_binary(_) ->
 
 decode_standard_eap_payload(<<_Code, EapId, Len:16/integer-big, _/binary>> = Payload)
 		when Len =< byte_size(Payload) ->
-	#{eap_identifier => EapId, authorization => Payload};
+	#{eap_identifier => EapId,
+	  authorization => Payload,
+	  parsed_eap_identity => aaa_eap_aka:response_identity(Payload)};
 decode_standard_eap_payload(Payload) when is_binary(Payload) ->
 	#{authorization => Payload};
 decode_standard_eap_payload(_) ->
 	#{}.
 
-aka_identity_request(#{authorization := <<2, EapId, Len:16/integer-big, 1, _/binary>> = Payload})
+log_eap_payload_identity(SessionId, NAI, Imsi, EAP) ->
+	case maps:get(parsed_eap_identity, EAP, undefined) of
+	Identity when is_binary(Identity), byte_size(Identity) > 0 ->
+		lager:info("SWm DER EAP-Response/Identity session_id=~p user_name=~p "
+			   "parsed_eap_identity=~p subscriber_imsi=~p eap_identifier=~p "
+			   "eap_payload_len=~p~n",
+			   [SessionId, NAI, Identity, Imsi,
+			    maps:get(eap_identifier, EAP, undefined),
+			    eap_payload_len(EAP)]);
+	_ ->
+		ok
+	end.
+
+eap_payload_len(#{authorization := Payload}) when is_binary(Payload) ->
+	byte_size(Payload);
+eap_payload_len(_) ->
+	undefined.
+
+aka_identity_request(#{authorization := <<2, EapId, Len:16/integer-big, 1, _/binary>> = Payload} = EAP,
+		     SubscriberImsi, NAI, SessionId)
 		when Len =< byte_size(Payload) ->
-	{ok, aaa_eap_aka:identity_request(aka, next_eap_id(EapId))};
-aka_identity_request(_) ->
+	case swm_response_identity_decision(EAP, SubscriberImsi) of
+	{skip, Reason} ->
+		lager:info("SWm EAP-AKA identity request decision access_if=swm auth_scheme=\"EAP-AKA\" "
+			   "session_id=~p user_name=~p parsed_eap_identity=~p subscriber_imsi=~p "
+			   "identity_request_decision=skip identity_request_reason=~p "
+			   "proceed_to_swx_mar=true challenge_type=aka_challenge~n",
+			   [SessionId, NAI, maps:get(parsed_eap_identity, EAP, undefined),
+			    SubscriberImsi, Reason]),
+		false;
+	{request, Reason} ->
+		lager:info("SWm EAP-AKA identity request decision access_if=swm auth_scheme=\"EAP-AKA\" "
+			   "session_id=~p user_name=~p parsed_eap_identity=~p subscriber_imsi=~p "
+			   "identity_request_decision=request identity_request_reason=~p "
+			   "proceed_to_swx_mar=false challenge_type=aka_identity~n",
+			   [SessionId, NAI, maps:get(parsed_eap_identity, EAP, undefined),
+			    SubscriberImsi, Reason]),
+		{ok, aaa_eap_aka:identity_request(aka, next_eap_id(EapId))}
+	end;
+aka_identity_request(_, _, _, _) ->
 	false.
+
+swm_response_identity_decision(#{parsed_eap_identity := Identity}, SubscriberImsi)
+		when is_binary(Identity), byte_size(Identity) > 0 ->
+	IdentityImsi = imsi_from_nai(Identity),
+	case {valid_imsi(IdentityImsi), valid_imsi(SubscriberImsi)} of
+	{true, true} ->
+		case identity_binary(IdentityImsi) =:= identity_binary(SubscriberImsi) of
+		true -> {skip, parsed_identity_usable};
+		false -> {request, identity_mismatch}
+		end;
+	{true, false} ->
+		{skip, parsed_identity_usable};
+	_ ->
+		{request, parsed_identity_unusable}
+	end;
+swm_response_identity_decision(_, _SubscriberImsi) ->
+	{request, missing_parsed_identity}.
 
 user_name([NAI | _]) -> NAI;
 user_name([]) -> "".
 
+imsi_from_nai(<<>>) -> <<>>;
+imsi_from_nai(NAI) when is_binary(NAI) ->
+	case binary:split(NAI, <<"@">>) of
+	[Imsi, _Realm] -> normalize_imsi(Imsi);
+	[_] -> normalize_imsi(NAI)
+	end;
 imsi_from_nai("") -> "";
 imsi_from_nai(NAI) ->
 	case string:find(NAI, "@") of
-	nomatch -> NAI;
-	_ -> conv:nai_to_imsi(NAI)
+	nomatch -> normalize_imsi(NAI);
+	_ -> normalize_imsi(conv:nai_to_imsi(NAI))
 	end.
+
+normalize_imsi(<<$0, Rest/binary>>) when byte_size(Rest) =:= 15 ->
+	case is_digit_binary(Rest) of
+	true -> Rest;
+	false -> <<$0, Rest/binary>>
+	end;
+normalize_imsi([$0 | Rest]) when length(Rest) =:= 15 ->
+	case lists:all(fun is_digit/1, Rest) of
+	true -> Rest;
+	false -> [$0 | Rest]
+	end;
+normalize_imsi(Imsi) ->
+	Imsi.
+
+valid_imsi(Imsi) when is_binary(Imsi), byte_size(Imsi) =:= 15 ->
+	is_digit_binary(Imsi);
+valid_imsi(Imsi) when is_list(Imsi), length(Imsi) =:= 15 ->
+	lists:all(fun is_digit/1, Imsi);
+valid_imsi(_) ->
+	false.
+
+is_digit_binary(Bin) ->
+	lists:all(fun is_digit/1, binary:bin_to_list(Bin)).
+
+is_digit(Char) ->
+	Char >= $0 andalso Char =< $9.
 
 first_or_undefined([Value | _]) -> Value;
 first_or_undefined([]) -> undefined.
@@ -388,3 +511,94 @@ service_selection(#'DER'{'AVP' = Avps}) ->
 	first_or_undefined([Value || #diameter_avp{code = 493, vendor_id = 10415, data = Value} <- Avps]);
 service_selection(_) ->
 	undefined.
+
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+
+dea_success_includes_eap_master_session_key_test() ->
+	MSK = <<1:512>>,
+	DEA = dea_response("session", ?DIAMETER_APP_ID_SWm, 1,
+			   <<"aaa.local">>, <<"local">>,
+			   <<"0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org">>,
+			   {ok, #{eap_msk => MSK}}),
+	?assertEqual(?DIAMETER_SUCCESS, DEA#'DEA'.'Result-Code'),
+	?assertEqual(MSK, DEA#'DEA'.'EAP-Master-Session-Key'),
+	?assertEqual(64, byte_size(DEA#'DEA'.'EAP-Master-Session-Key')).
+
+dea_success_includes_apn_configuration_test() ->
+	MSK = <<1:512>>,
+	ApnConfig = #'APN-Configuration'{
+		'Context-Identifier' = 1,
+		'PDN-Type' = 0,
+		'Service-Selection' = "internet",
+		'AMBR' = [#'AMBR'{'Max-Requested-Bandwidth-UL' = 50000000,
+		                   'Max-Requested-Bandwidth-DL' = 200000000}]},
+	DEA = dea_response("session", ?DIAMETER_APP_ID_SWm, 1,
+			   <<"aaa.local">>, <<"local">>, <<"311435300070580">>,
+			   {ok, #{eap_msk => MSK, apn_configuration => [ApnConfig]}}),
+	?assertEqual(?DIAMETER_SUCCESS, DEA#'DEA'.'Result-Code'),
+	?assertEqual(MSK, DEA#'DEA'.'EAP-Master-Session-Key'),
+	?assertEqual([ApnConfig], DEA#'DEA'.'APN-Configuration').
+
+dea_failure_does_not_include_eap_master_session_key_test() ->
+	DEA = dea_response("session", ?DIAMETER_APP_ID_SWm, 1,
+			   <<"aaa.local">>, <<"local">>, <<"311435300070580">>,
+			   {error, ?DIAMETER_AUTHORIZATION_REJECTED}),
+	?assertEqual(?DIAMETER_AUTHORIZATION_REJECTED, DEA#'DEA'.'Result-Code'),
+	?assertEqual([], DEA#'DEA'.'EAP-Master-Session-Key').
+
+redact_dea_for_log_hides_eap_master_session_key_test() ->
+	MSK = <<1:512>>,
+	DEA = #'DEA'{'EAP-Master-Session-Key' = MSK},
+	?assertEqual({redacted, 64},
+		     (redact_dea_for_log(DEA))#'DEA'.'EAP-Master-Session-Key').
+
+swm_eap_identity_uses_response_identity_for_key_derivation_test() ->
+	EapIdentity = <<"0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org">>,
+	EAP = #{authorization => <<2, 1, (5 + byte_size(EapIdentity)):16/integer-big,
+				  1, EapIdentity/binary>>,
+		parsed_eap_identity => EapIdentity},
+	?assertEqual(EapIdentity, eap_identity(EAP, <<"311435300070580">>)).
+
+swm_eap_identity_falls_back_to_user_name_without_response_identity_test() ->
+	NAI = <<"311435300070580">>,
+	EAP = #{authorization => <<2, 7, 12:16/integer-big, 23, 1, 0:16, 3, 1, 0:16>>},
+	?assertEqual(NAI, eap_identity(EAP, NAI)).
+
+decode_standard_eap_payload_extracts_response_identity_test() ->
+	EapIdentity = <<"0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org">>,
+	Payload = <<2, 1, (5 + byte_size(EapIdentity)):16/integer-big, 1, EapIdentity/binary>>,
+	?assertMatch(#{eap_identifier := 1,
+		       authorization := Payload,
+		       parsed_eap_identity := EapIdentity},
+		     decode_standard_eap_payload(Payload)).
+
+swm_valid_permanent_identity_skips_extra_aka_identity_request_test() ->
+	EapIdentity = <<"0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org">>,
+	EAP = #{parsed_eap_identity => EapIdentity},
+	?assertEqual({skip, parsed_identity_usable},
+		     swm_response_identity_decision(EAP, <<"311435300070580">>)),
+	?assertEqual({skip, parsed_identity_usable},
+		     swm_response_identity_decision(EAP, "311435300070580")).
+
+swm_missing_parsed_identity_requests_aka_identity_test() ->
+	?assertEqual({request, missing_parsed_identity},
+		     swm_response_identity_decision(#{}, <<"311435300070580">>)).
+
+swm_unusable_parsed_identity_requests_aka_identity_test() ->
+	EAP = #{parsed_eap_identity => <<"anonymous@nai.epc.mnc435.mcc311.3gppnetwork.org">>},
+	?assertEqual({request, parsed_identity_unusable},
+		     swm_response_identity_decision(EAP, <<"311435300070580">>)).
+
+swm_mismatched_permanent_identity_requests_aka_identity_test() ->
+	EAP = #{parsed_eap_identity => <<"0311435300070581@nai.epc.mnc435.mcc311.3gppnetwork.org">>},
+	?assertEqual({request, identity_mismatch},
+		     swm_response_identity_decision(EAP, <<"311435300070580">>)).
+
+normalize_imsi_removes_3gpp_nai_leading_zero_for_lookup_log_test() ->
+	?assertEqual(<<"311435300070580">>,
+		     normalize_imsi(imsi_from_nai(<<"0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org">>))),
+	?assertEqual("311435300070580",
+		     normalize_imsi(imsi_from_nai("0311435300070580@nai.epc.mnc435.mcc311.3gppnetwork.org"))).
+
+-endif.

@@ -16,8 +16,6 @@ This repository contains the standalone AAA service used by VectorCore non-3GPP 
 
 The repository identity, package name, release artifact, and service name are `vectorcore-aaa`. The Erlang application and module identity uses `vectorcore_aaa`.
 
-![Alt Digram](https://github.com/svinson1121/vectorcore-aaa/blob/main/images/TWAG.png)
-
 ## Building
 
 Install Erlang and rebar3 packages.
