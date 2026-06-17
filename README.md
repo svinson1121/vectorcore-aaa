@@ -4,6 +4,8 @@ VectorCore AAA is a standalone 3GPP AAA service derived from the Osmocom osmo-ep
 
 VectorCore AAA began as a fork/split of the AAA-related components from Osmocom osmo-epdg. The codebase has been modified for standalone VectorCore AAA use cases, including trusted and untrusted non-3GPP access authentication.
 
+![Diagram](images/non-3gpp.png)
+
 ## Upstream Attribution
 
 VectorCore AAA is derived from the Osmocom osmo-epdg project.
