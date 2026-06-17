@@ -19,12 +19,10 @@ The repository identity, package name, release artifact, and service name are `v
 ## Building
 
 Install Erlang and rebar3 packages.
-
 ```sh
-rebar3 compile
-rebar3 escriptize
+make clean
+make build
 ```
-
 ## Testing
 
 ```sh
@@ -34,15 +32,9 @@ rebar3 eunit
 ## Running
 
 ```sh
-rebar3 shell --config ./config/aaa.config
+ERL_FLAGS="-config  config/aaa.config"  _build/default/bin/vectorcore-aaa
 ```
 
-Or build the escript and run it directly:
-
-```sh
-rebar3 escriptize
-_build/default/bin/vectorcore-aaa
-```
 
 The default local configuration file is `config/aaa.config`. Deployment packaging should use the VectorCore runtime path convention:
 
